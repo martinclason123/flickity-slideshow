@@ -1,0 +1,136 @@
+{{ "flickity.css" | asset_url | stylesheet_tag }}
+{{ "flickity-fade.css" | asset_url | stylesheet_tag }}
+{{ "mc-custom-slider.css" | asset_url | stylesheet_tag }}
+{{ "animate.min.css" | asset_url | stylesheet_tag }}
+
+
+
+<section class="main-carousel mc__custom--slider">
+    {%- for block in section.blocks -%}
+    <div class="carousel-cell">
+        <img
+          class="carousel-cell-image"
+          src="{{ block.settings.desktopImage | img_url: 'master'}}"
+        />
+        <div class="cell-text-container animate__animated">
+          <h1>{{ block.settings.headerText}}</h1>
+          <p>{{ block.settings.subheadingText}}</p>
+          <a href="{{ block.settings.link }}">{{ block.settings.buttonText}}</a>
+        </div>
+      </div>
+    {% endfor %}
+</section>
+
+{{ 'flickity.pkgd.js' | asset_url | script_tag }}
+{{ 'flickity-fade.js' | asset_url | script_tag }}
+{{ 'jquery-3.6.1.js' | asset_url | script_tag }}
+
+<style>
+    .animate__animated.animate__fadeIn {
+      --animate-duration: 3s;
+  }
+  
+</style>
+
+<script>
+    let flkty = new Flickity(".main-carousel", {
+        fade: true,
+        adaptive: true,
+        infinite: true,
+        autoPlay: true,
+        autoPlay: 5000,
+        pauseAutoPlayOnHover: false,
+        on: {
+          ready: function () {
+            try{
+            console.log("Flickity is ready");
+            $(".animate__animated").first().addClass("animate__fadeIn");
+            } catch(e) {
+              console.log("error caught")
+            }
+          },
+          change: function (index) {
+            try {
+            let animated = $(".animate__fadeIn");
+            animated.removeClass("animate__fadeIn");
+
+            flkty.slides[index].cells[0].element.childNodes[3].classList.add(
+              "animate__fadeIn"
+            );
+          } catch(e) {
+              console.log('error caught')
+          }
+          },
+        },
+      });
+  flkty.on('settle', function (index) {
+  if (flkty.resizeQueued) {
+    flkty.resizeQueued = false;
+    flkty.onresize();
+  }
+}); 
+
+window.addEventListener('resize', function () {
+  if (flkty.isAnimating) {
+    flkty.resizeQueued = true;
+  } else {
+    flkty.onresize();
+  }
+});
+</script>
+
+{% schema %}
+{
+    "name": "Flickity Slideshow",
+    "settings": [
+      
+    ],
+    "blocks" : [
+      {
+        "type" : "column",
+        "name" : "slide",
+        "settings" : [
+          {
+            "type": "image_picker",
+            "id" : "desktopImage",
+            "label" :  "Desktop Image"
+          },
+          {
+            "type": "text",
+            "id": "headerText",
+            "label": "Heading Text",
+            "default": "Header Text Here",
+            "placeholder": "Header Text",
+            "info": "Header Text"
+          },
+          {
+            "type": "text",
+            "id": "subheadingText",
+            "label": "Subheader Text",
+            "default": "Subheader Text Here",
+            "placeholder": "Subheader Text",
+            "info": "Subheader Text"
+          },
+          {
+            "type": "text",
+            "id": "buttonText",
+            "label": "Button Text",
+            "default": "SHOP NOW",
+            "placeholder": "Text Button",
+            "info": "Text Button"
+          },
+          {
+            "type": "url",
+            "id": "link",
+            "label": "Link"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Flickity Slider"
+      }
+    ]
+  }
+{% endschema %}
